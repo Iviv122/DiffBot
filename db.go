@@ -13,7 +13,8 @@ var lock = &sync.Mutex{}
 const TABLE_NAME = "pages"
 
 func db_init() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./foo.db")
+	_db, err := sql.Open("sqlite", "./foo.db")
+	db = _db
 	_, err = db.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
         url TEXT PRIMARY KEY,
         time TEXT,

@@ -15,7 +15,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
 	client := &http.Client{
 		Timeout: 15 * time.Second,
 	}
