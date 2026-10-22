@@ -1,4 +1,4 @@
-module main
+module github.com/Iviv122/diffbot
 
 go 1.27.2
 
