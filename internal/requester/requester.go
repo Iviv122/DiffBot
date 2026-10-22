@@ -8,14 +8,14 @@ import (
 	DB "github.com/Iviv122/diffbot/internal/requester/db"
 )
 
-func GetClient() *http.Client {
+func getClient() *http.Client {
 	return &http.Client{
 		Timeout: 15 * time.Second,
 	}
 }
 
-func Request(link string, next_time int64) (string, error) {
-	client := GetClient()
+func Request(link string, next_time time.Time) (string, error) {
+	client := getClient()
 	db, err := DB.GetDb()
 	if err != nil {
 		panic(err)
@@ -34,7 +34,10 @@ func Request(link string, next_time int64) (string, error) {
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close() // close after main returns
 
-	DB.Insert(db, link, 60, string(body))
+	err = DB.Insert(db, link, next_time, string(body))
+	if err != nil {
+		return "", err
+	}
 
 	return string(body), err
 }

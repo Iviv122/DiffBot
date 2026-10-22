@@ -33,9 +33,8 @@ func GetDb() (*sql.DB, error) {
 }
 
 // TODO: Sanitize input
-func Insert(db *sql.DB, url string, repeat_time int64, page string) error {
-	time := time.Now().Add(time.Duration(repeat_time) * time.Second)
-	query := fmt.Sprintf(`INSERT OR REPLACE INTO %s VALUES ('%s', '%s', '%s')`, TABLE_NAME, url, time, page)
+func Insert(db *sql.DB, url string, repeat_time time.Time, page string) error {
+	query := fmt.Sprintf(`INSERT OR REPLACE INTO %s VALUES ('%s', '%s', '%s')`, TABLE_NAME, url, repeat_time.Format("2006-01-02 15:04:05"), page)
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
