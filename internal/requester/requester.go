@@ -3,28 +3,19 @@ package requester
 import (
 	"io"
 	"net/http"
-	"sync"
 	"time"
 
 	DB "github.com/Iviv122/diffbot/internal/requester/db"
 )
 
-var lock = &sync.Mutex{}
-var client *http.Client
-
 func GetClient() *http.Client {
-	if client == nil {
-		client = &http.Client{
-			Timeout: 15 * time.Second,
-		}
+	return &http.Client{
+		Timeout: 15 * time.Second,
 	}
-	return client
-
 }
 
-func Request(link string) (*http.Response, error) {
-	client = GetClient()
-
+func Request(link string, next_time int64) (string, error) {
+	client := GetClient()
 	db, err := DB.GetDb()
 	if err != nil {
 		panic(err)
@@ -40,14 +31,10 @@ func Request(link string) (*http.Response, error) {
 		panic(err)
 	}
 
-	//log.Printf("Status: %s", resp.Status)
-	//log.Printf("Final URL: %s", resp.Request.URL)
-	//log.Printf("Content-Type: %s", resp.Header.Get("Content-Type"))
-	//log.Printf("Body: %s", body)
-
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close() // close after main returns
-	DB.Insert(db, link, time.Now().Format("2006-01-02 15:04:05"), string(body))
 
-	return resp, err
+	DB.Insert(db, link, 60, string(body))
+
+	return string(body), err
 }

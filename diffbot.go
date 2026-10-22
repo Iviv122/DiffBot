@@ -1,19 +1,30 @@
 package main
 
 import (
-	"io"
+	"fmt"
+	"log"
+	"time"
 
-	Requester "github.com/Iviv122/diffbot/internal/requester"
+	DB "github.com/Iviv122/diffbot/internal/requester/db"
 	_ "github.com/glebarez/go-sqlite"
 )
 
-func main() {
+const refresh_rate = time.Second // every second
 
-	resp, err := Requester.Request("https://rezerwacje.duw.pl/status_kolejek/query.php?status")
-	if err != nil {
-		panic(err)
+func main() {
+	now := time.Now()
+	for {
+		db, err := DB.GetDb()
+		if err != nil {
+			log.Fatal(err)
+			continue
+		}
+		lines, err := DB.GetList(db)
+		for _, item := range lines {
+			fmt.Println(item.Url)
+		}
+		now.Add(time.Second)
+		time.Sleep(time.Second)
 	}
-	body, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	print(body)
+
 }
