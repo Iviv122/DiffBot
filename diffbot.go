@@ -9,12 +9,16 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 )
 
-const refresh_rate = time.Second           // every second
-const next_refresh_rate = time.Second * 10 // every 5 seconds
+const refresh_rate = time.Second          // every second
+const next_refresh_rate = time.Second * 1 // every 5 seconds
+
+var sample_links = [...]string{"https://google.com"}
 
 func main() {
-	if false {
-		Requester.Request("https://rezerwacje.duw.pl/status_kolejek/query.php?status", time.Now().Add(next_refresh_rate))
+	if true {
+		for _, i := range sample_links {
+			Requester.Request(i, time.Now().Add(next_refresh_rate))
+		}
 	}
 	now, err := time.Parse("2006-01-02 15:04:05", time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
@@ -37,14 +41,15 @@ func main() {
 		}
 
 		for _, item := range lines {
-			if item.NextTime.Before(now) {
-				_, err := Requester.Request(item.Url, now.Add(next_refresh_rate))
-				if err != nil {
-					log.Println("Request failed:", err)
-					continue
+			go func() {
+				if item.NextTime.Before(now) {
+					_, err := Requester.Request(item.Url, now.Add(next_refresh_rate))
+					if err != nil {
+						log.Println("Request failed:", err)
+					}
+					log.Default().Print(item.Url, " -> ", item.NextTime)
 				}
-				log.Default().Print("-> ", item.NextTime)
-			}
+			}()
 
 		}
 		now = now.Add(refresh_rate)

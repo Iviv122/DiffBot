@@ -2,6 +2,7 @@ package requester
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -18,7 +19,8 @@ func Request(link string, next_time time.Time) (string, error) {
 	client := getClient()
 	db, err := DB.GetDb()
 	if err != nil {
-		panic(err)
+		log.Print("Request:", err)
+		return "", err
 	}
 	req, err := http.NewRequest(http.MethodGet, link, nil)
 	if err != nil {
@@ -28,7 +30,8 @@ func Request(link string, next_time time.Time) (string, error) {
 	req.Header.Set("Accept", "*/*")
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Print("Request:", err)
+		return "", err
 	}
 
 	body, err := io.ReadAll(resp.Body)

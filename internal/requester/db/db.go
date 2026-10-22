@@ -32,14 +32,22 @@ func GetDb() (*sql.DB, error) {
 	return db, nil
 }
 
-// TODO: Sanitize input
 func Insert(db *sql.DB, url string, repeat_time time.Time, page string) error {
-	query := fmt.Sprintf(`INSERT OR REPLACE INTO %s VALUES ('%s', '%s', '%s')`, TABLE_NAME, url, repeat_time.Format("2006-01-02 15:04:05"), page)
-	_, err := db.Exec(query)
+	query := fmt.Sprintf(
+		`INSERT OR REPLACE INTO %s (url, time, page) VALUES (?, ?, ?)`, TABLE_NAME)
+
+	_, err := db.Exec(
+		query,
+		url,
+		repeat_time.Format("2006-01-02 15:04:05"),
+		page,
+	)
 	if err != nil {
-		log.Fatal(err)
+		log.Print("Insert: ", err)
+		return err
 	}
-	return err
+
+	return nil
 }
 func GetList(db *sql.DB) ([]Link, error) {
 	rows, err := db.Query(fmt.Sprintf(`SElECT * FROM %s`, TABLE_NAME))
