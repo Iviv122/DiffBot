@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"log"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	Requester "github.com/Iviv122/diffbot/internal/requester"
@@ -10,15 +14,11 @@ import (
 )
 
 const refresh_rate = time.Second          // every second
-const next_refresh_rate = time.Second * 1 // every 5 seconds
-
-var sample_links = [...]string{"https://google.com"}
+const next_refresh_rate = time.Second * 5 // every 5 seconds
 
 func main() {
-	if true {
-		for _, i := range sample_links {
-			Requester.Request(i, time.Now().Add(next_refresh_rate))
-		}
+	if false {
+		Populate("sample_list.txt")
 	}
 	now, err := time.Parse("2006-01-02 15:04:05", time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
@@ -56,4 +56,25 @@ func main() {
 		time.Sleep(refresh_rate)
 	}
 
+}
+
+func Populate(filename string) {
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// remember to close the file at the end of the program
+	defer f.Close()
+
+	// read the file line by line using scanner
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		a := strings.Split(scanner.Text(), " ")
+		t, _ := strconv.Atoi(a[1])
+		Requester.Request(a[0], time.Now().Add(time.Second*time.Duration(t)))
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 }
