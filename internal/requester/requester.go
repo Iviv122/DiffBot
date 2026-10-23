@@ -19,7 +19,7 @@ func Request(link string, next_time time.Time) (string, error) {
 	client := getClient()
 	db, err := DB.GetDb()
 	if err != nil {
-		log.Print("Request:", err)
+		log.Print("Request_DB:", err)
 		return "", err
 	}
 	req, err := http.NewRequest(http.MethodGet, link, nil)
@@ -30,7 +30,9 @@ func Request(link string, next_time time.Time) (string, error) {
 	req.Header.Set("Accept", "*/*")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Print("Request:", err)
+
+		err = DB.Insert(db, link, next_time, "Bad fetch")
+		log.Print("Request_ERR:", req.URL, resp, err)
 		return "", err
 	}
 
@@ -39,6 +41,7 @@ func Request(link string, next_time time.Time) (string, error) {
 
 	err = DB.Insert(db, link, next_time, string(body))
 	if err != nil {
+		log.Print("Request_Com:", err)
 		return "", err
 	}
 

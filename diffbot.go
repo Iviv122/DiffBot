@@ -18,7 +18,7 @@ const next_refresh_rate = time.Second * 5 // every 5 seconds
 
 func main() {
 	if false {
-		Populate("sample_list.txt")
+		go Populate("sample_list.txt")
 	}
 	now, err := time.Parse("2006-01-02 15:04:05", time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
@@ -70,10 +70,12 @@ func Populate(filename string) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		a := strings.Split(scanner.Text(), " ")
-		t, _ := strconv.Atoi(a[1])
-		Requester.Request(a[0], time.Now().Add(time.Second*time.Duration(t)))
+		go func() {
+			t, _ := strconv.Atoi(a[1])
+			Requester.Request(a[0], time.Now().Add(time.Second*time.Duration(t)))
+		}()
 	}
-
+	log.Println("ENDED POPULATION")
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}

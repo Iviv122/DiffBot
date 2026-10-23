@@ -49,6 +49,20 @@ func Insert(db *sql.DB, url string, repeat_time time.Time, page string) error {
 
 	return nil
 }
+func UpdateTime(db *sql.DB, url string, repeat_time time.Time) error {
+	query := fmt.Sprintf("UPDATE %s SET time = ? WHERE url=?", TABLE_NAME)
+	_, err := db.Exec(
+		query,
+		url,
+		repeat_time.Format("2006-01-02 15:04:05"),
+	)
+	if err != nil {
+
+		log.Print("UpdateTime: ", err)
+		return err
+	}
+	return nil
+}
 func GetList(db *sql.DB) ([]Link, error) {
 	rows, err := db.Query(fmt.Sprintf(`SElECT * FROM %s`, TABLE_NAME))
 	if err != nil {

@@ -726,9 +726,9 @@ https://lulu.org 31540
 http://alejandra.biz 13905
 http://adrian.org 6216
 https://ervin.biz 31241
-https://sandy.info 4288
+https://sandy.info 410
 http://katelin.biz 25320
-https://malcolm.com 17573
+https://malcolm.com 1000
 https://franco.name 16247
 https://milton.com 16149
 https://reanna.biz 26592
@@ -968,8 +968,8 @@ http://steve.biz 30203
 https://allan.net 15719
 https://adeline.net 12031
 http://colleen.org 11049
-http://luis.info 6573
-https://meda.org 3154
+http://luis.info 1000
+https://meda.org 1000
 https://alejandra.com 22166
 http://julia.biz 24672
 https://monserrat.name 4290
@@ -977,7 +977,7 @@ http://benny.org 24413
 https://justyn.biz 8181
 https://alexandrea.biz 14521
 http://raina.info 5362
-https://lorenza.org 30874
+https://lorenza.org 1
 https://odie.name 26711
 http://walton.org 18939
 https://cecile.info 16299
@@ -997,4 +997,4 @@ http://ophelia.com 17686
 https://arnold.com 13689
 http://favian.com 20101
 http://sandrine.biz 25207
-https://lydia.com 23761
+https://lydia.com 1
