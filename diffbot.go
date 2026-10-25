@@ -17,23 +17,28 @@ import (
 
 const refresh_rate = time.Second
 
-// TODO: cli
-// import list
-// export list
 // refetch
 // select db
 // refresh rate
 func main() {
 	app := cliapp.Default()
 
-	app.Add("run", func() {
-		log.Print("Running")
+	app.Add("run", "<db_path> starts process", func(db_url string) {
+		DB.InitDb(db_url)
 		run()
 	})
-	app.Add("populate", "Insert entries from list", func(msg string) {
-		log.Print("Populating with ", msg)
-		populate(msg)
+	app.Add("populate", "<list_path> <db_path> Insert entries from list", func(list string, db_url string) {
+		DB.InitDb(db_url)
+		populate(list)
 	})
+	app.Add("fetch", "<db_path> manually fetch everything", func(db_url string) {
+		DB.InitDb(db_url)
+		fetch()
+	})
+	app.Add("initdb", "<db_path> create file and/or table", func(db_url string) {
+		DB.InitDb(db_url)
+	})
+
 	err := app.Run()
 	if err != nil {
 		log.Print(err)
@@ -100,6 +105,27 @@ func populate(filename string) {
 	if err := scanner.Err(); err != nil {
 		log.Fatal("Populate_end: ", err)
 		log.Fatal(err)
+	}
+	wg.Wait()
+}
+
+// fetch without update
+func fetch() {
+	var wg sync.WaitGroup
+	lines, err := DB.GetList()
+	if err != nil {
+		log.Print(err)
+		panic(err)
+	}
+
+	for _, item := range lines {
+		wg.Go(func() {
+			_, err := Requester.Request(item.Url, item.NextTime, item.RefreshTime)
+			if err != nil {
+				log.Println("Request failed:", err)
+			}
+			log.Print(item.Url, " -> ", item.NextTime)
+		})
 	}
 	wg.Wait()
 }

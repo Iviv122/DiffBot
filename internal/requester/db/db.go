@@ -21,17 +21,13 @@ type Link struct {
 	RefreshTime time.Duration // seconds
 }
 
-// TODO: sqlite
-func GetDb() (*sql.DB, error) {
-	if db != nil {
-		return db, nil
-	}
+func InitDb(url string) error {
 	get_lock.Lock()
 	defer get_lock.Unlock()
-	_db, err := sql.Open("sqlite", "./foo.db")
+	_db, err := sql.Open("sqlite", url)
 	db = _db
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = db.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
         url TEXT PRIMARY KEY,
@@ -40,8 +36,12 @@ func GetDb() (*sql.DB, error) {
         refresh_time INTEGER
     )`, TABLE_NAME))
 	if err != nil {
-		return nil, err
+		return err
 	}
+	return nil
+}
+
+func getDb() (*sql.DB, error) {
 	return db, nil
 }
 
@@ -49,13 +49,6 @@ func GetDb() (*sql.DB, error) {
 func Insert(url string, repeat_time time.Time, page string, refresh_time time.Duration) error {
 	conn_lock.Lock()
 	defer conn_lock.Unlock()
-	if db == nil {
-		_, err := GetDb()
-		if err != nil {
-			log.Fatal("Insert: Couldn't open db")
-			return err
-		}
-	}
 
 	query := fmt.Sprintf(
 		`INSERT OR REPLACE INTO %s (url, time, page, refresh_time) VALUES (?, ?, ?, ?)`, TABLE_NAME)
@@ -75,13 +68,6 @@ func Insert(url string, repeat_time time.Time, page string, refresh_time time.Du
 	return nil
 }
 func UpdateTime(url string, repeat_time time.Time) error {
-	if db == nil {
-		_, err := GetDb()
-		if err != nil {
-			log.Fatal("Insert: Couldn't open db")
-			return err
-		}
-	}
 	conn_lock.Lock()
 	defer conn_lock.Unlock()
 
@@ -99,13 +85,6 @@ func UpdateTime(url string, repeat_time time.Time) error {
 	return nil
 }
 func GetList() ([]Link, error) {
-	if db == nil {
-		_, err := GetDb()
-		if err != nil {
-			log.Fatal("Insert: Couldn't open db")
-			return nil, err
-		}
-	}
 	conn_lock.Lock()
 	defer conn_lock.Unlock()
 

@@ -9,6 +9,8 @@ import (
 	DB "github.com/Iviv122/diffbot/internal/requester/db"
 )
 
+type ServerState int
+
 func getClient() *http.Client {
 	return &http.Client{
 		Timeout: 15 * time.Second,
