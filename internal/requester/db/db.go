@@ -41,10 +41,6 @@ func InitDb(url string) error {
 	return nil
 }
 
-func getDb() (*sql.DB, error) {
-	return db, nil
-}
-
 // refresh_time in seconds
 func Insert(url string, repeat_time time.Time, page string, refresh_time time.Duration) error {
 	insert_lock.Lock()
@@ -67,8 +63,25 @@ func Insert(url string, repeat_time time.Time, page string, refresh_time time.Du
 
 	return nil
 }
-func Find() {
 
+// return body and err
+func GetBody(url string) (string, error) {
+	rows, err := db.Query(fmt.Sprintf(`SElECT page FROM %s WHERE url=?`, TABLE_NAME), url)
+	if err != nil {
+		log.Print("Find_Querry: ", err)
+		return "", err
+	}
+	var body string
+	if rows.Next() {
+		err = rows.Scan(&body)
+		if err != nil {
+			log.Print("Find_Scan: ", err)
+			return "", err
+		}
+	}
+	rows.Close()
+
+	return body, nil
 }
 func UpdateTime(url string, repeat_time time.Time) error {
 	insert_lock.Lock()

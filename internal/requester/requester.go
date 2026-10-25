@@ -36,16 +36,24 @@ func AreSame(text1 string, text2 string) (bool, string) {
 	return false, text
 }
 
-func Process(link string, next_time time.Time, repeat_time time.Duration) (string, error) {
+func Process(url string, next_time time.Time, repeat_time time.Duration) (string, error) {
 
-	body, err := request(link)
+	body, err := request(url)
 
 	if err != nil {
-		err = DB.Insert(link, next_time, "Bad fetch", repeat_time)
+		err = DB.Insert(url, next_time, "Bad fetch", repeat_time)
 	}
-	err = DB.Insert(link, next_time, string(body), repeat_time)
+	prev, err := DB.GetBody(url)
 	if err != nil {
-		log.Print("Request_Com:", err)
+		return string(body), err
+	}
+	areSame, ans := AreSame(prev, body)
+	if !areSame {
+		log.Print(ans)
+	}
+	err = DB.Insert(url, next_time, string(body), repeat_time)
+	if err != nil {
+		log.Print("Request_Commit:", err)
 		return "", err
 	}
 
