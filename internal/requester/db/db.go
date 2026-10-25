@@ -12,7 +12,7 @@ const TABLE_NAME = "pages"
 
 var db *sql.DB
 var get_lock = &sync.Mutex{}
-var conn_lock = &sync.Mutex{}
+var insert_lock = &sync.Mutex{}
 
 type Link struct {
 	Url         string
@@ -47,8 +47,8 @@ func getDb() (*sql.DB, error) {
 
 // refresh_time in seconds
 func Insert(url string, repeat_time time.Time, page string, refresh_time time.Duration) error {
-	conn_lock.Lock()
-	defer conn_lock.Unlock()
+	insert_lock.Lock()
+	defer insert_lock.Unlock()
 
 	query := fmt.Sprintf(
 		`INSERT OR REPLACE INTO %s (url, time, page, refresh_time) VALUES (?, ?, ?, ?)`, TABLE_NAME)
@@ -67,9 +67,12 @@ func Insert(url string, repeat_time time.Time, page string, refresh_time time.Du
 
 	return nil
 }
+func Find() {
+
+}
 func UpdateTime(url string, repeat_time time.Time) error {
-	conn_lock.Lock()
-	defer conn_lock.Unlock()
+	insert_lock.Lock()
+	defer insert_lock.Unlock()
 
 	query := fmt.Sprintf("UPDATE %s SET time = ? WHERE url=?", TABLE_NAME)
 	_, err := db.Exec(
@@ -85,8 +88,6 @@ func UpdateTime(url string, repeat_time time.Time) error {
 	return nil
 }
 func GetList() ([]Link, error) {
-	conn_lock.Lock()
-	defer conn_lock.Unlock()
 
 	rows, err := db.Query(fmt.Sprintf(`SElECT * FROM %s`, TABLE_NAME))
 	if err != nil {

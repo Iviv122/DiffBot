@@ -17,9 +17,6 @@ import (
 
 const refresh_rate = time.Second
 
-// refetch
-// select db
-// refresh rate
 func main() {
 
 	app := cliapp.Default()
