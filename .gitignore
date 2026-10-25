@@ -1,1 +1,3 @@
 *.db
+*.sample
+sample_list.txt

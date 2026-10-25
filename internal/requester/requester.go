@@ -15,13 +15,8 @@ func getClient() *http.Client {
 	}
 }
 
-func Request(link string, next_time time.Time) (string, error) {
+func Request(link string, next_time time.Time, repeat_time time.Duration) (string, error) {
 	client := getClient()
-	db, err := DB.GetDb()
-	if err != nil {
-		log.Print("Request_DB:", err)
-		return "", err
-	}
 	req, err := http.NewRequest(http.MethodGet, link, nil)
 	if err != nil {
 		panic(err)
@@ -31,15 +26,15 @@ func Request(link string, next_time time.Time) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 
-		err = DB.Insert(db, link, next_time, "Bad fetch")
-		log.Print("Request_ERR:", req.URL, resp, err)
+		log.Print("Request_ERR_START:", req.URL, resp, err)
+		err = DB.Insert(link, next_time, "Bad fetch", repeat_time)
 		return "", err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close() // close after main returns
 
-	err = DB.Insert(db, link, next_time, string(body))
+	err = DB.Insert(link, next_time, string(body), repeat_time)
 	if err != nil {
 		log.Print("Request_Com:", err)
 		return "", err
