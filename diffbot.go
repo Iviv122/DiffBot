@@ -21,6 +21,7 @@ const refresh_rate = time.Second
 // select db
 // refresh rate
 func main() {
+
 	app := cliapp.Default()
 
 	app.Add("run", "<db_path> starts process", func(db_url string) {
@@ -62,7 +63,7 @@ func run() {
 		for _, item := range lines {
 			go func() {
 				if item.NextTime.Before(now) {
-					_, err := Requester.Request(item.Url, now.Add(item.RefreshTime), item.RefreshTime)
+					_, err := Requester.Process(item.Url, now.Add(item.RefreshTime), item.RefreshTime)
 					if err != nil {
 						log.Println("Request failed:", err)
 					}
@@ -95,7 +96,7 @@ func populate(filename string) {
 
 			wait_seconds := time.Second * time.Duration(t)
 
-			_, err := Requester.Request(a[0], time.Now().Add(wait_seconds), wait_seconds)
+			_, err := Requester.Process(a[0], time.Now().Add(wait_seconds), wait_seconds)
 
 			if err != nil {
 				log.Print("Populate_Request: ", err)
@@ -120,7 +121,7 @@ func fetch() {
 
 	for _, item := range lines {
 		wg.Go(func() {
-			_, err := Requester.Request(item.Url, item.NextTime, item.RefreshTime)
+			_, err := Requester.Process(item.Url, item.NextTime, item.RefreshTime)
 			if err != nil {
 				log.Println("Request failed:", err)
 			}
