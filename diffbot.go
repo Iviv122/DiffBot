@@ -6,21 +6,41 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	Requester "github.com/Iviv122/diffbot/internal/requester"
 	DB "github.com/Iviv122/diffbot/internal/requester/db"
 	_ "github.com/glebarez/go-sqlite"
+	"github.com/nuskey8/go-cliapp"
 )
 
-const refresh_rate = time.Second          // every second
-const next_refresh_rate = time.Second * 5 // every 5 seconds
+const refresh_rate = time.Second
 
+// TODO: cli
+// import list
+// export list
+// refetch
+// select db
+// refresh rate
 func main() {
-	DB.GetDb()
-	if true {
-		go Populate("list1.sample")
+	app := cliapp.Default()
+
+	app.Add("run", func() {
+		log.Print("Running")
+		run()
+	})
+	app.Add("populate", "Insert entries from list", func(msg string) {
+		log.Print("Populating with ", msg)
+		populate(msg)
+	})
+	err := app.Run()
+	if err != nil {
+		log.Print(err)
 	}
+}
+
+func run() {
 	now, err := time.Parse("2006-01-02 15:04:05", time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		panic(err)
@@ -49,10 +69,12 @@ func main() {
 		now = now.Add(refresh_rate)
 		time.Sleep(refresh_rate)
 	}
-
 }
 
-func Populate(filename string) {
+// time goes in second
+func populate(filename string) {
+
+	var wg sync.WaitGroup
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatal("Populate: ", err)
@@ -62,17 +84,22 @@ func Populate(filename string) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		a := strings.Split(scanner.Text(), " ")
-		go func() {
+		wg.Go(func() {
+			log.Print("Populate: ", a[0])
 			t, _ := strconv.Atoi(a[1])
-			_, err := Requester.Request(a[0], time.Now().Add(time.Second*time.Duration(t)), time.Second*time.Duration(t))
+
+			wait_seconds := time.Second * time.Duration(t)
+
+			_, err := Requester.Request(a[0], time.Now().Add(wait_seconds), wait_seconds)
+
 			if err != nil {
 				log.Print("Populate_Request: ", err)
 			}
-		}()
+		})
 	}
-	log.Println("ENDED POPULATION")
 	if err := scanner.Err(); err != nil {
 		log.Fatal("Populate_end: ", err)
 		log.Fatal(err)
 	}
+	wg.Wait()
 }
