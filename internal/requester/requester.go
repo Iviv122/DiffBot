@@ -47,13 +47,13 @@ func Process(url string, next_time time.Time, repeat_time time.Duration) (string
 		return string(body), err
 	}
 	areSame, ans := AreSame(prev, body)
-	if !areSame {
+	if !areSame && body != "" {
 		log.Print(ans)
-	}
-	err = DB.Insert(url, next_time, string(body), repeat_time)
-	if err != nil {
-		log.Print("Request_Commit:", err)
-		return "", err
+		err = DB.Insert(url, next_time, string(body), repeat_time)
+		if err != nil {
+			log.Print("Request_Commit:", err)
+			return "", err
+		}
 	}
 
 	return string(body), err
