@@ -30,7 +30,6 @@ func AreSame(text1 string, text2 string) (bool, string) {
 		B:        difflib.SplitLines(text2),
 		FromFile: "Old",
 		ToFile:   "New",
-		Context:  3,
 	}
 	text, _ := difflib.GetUnifiedDiffString(diff)
 	return false, text
