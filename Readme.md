@@ -2,6 +2,11 @@ Diffbot, your process to spot changes on pages
 
 written in go by a go newbie :D
 
+example usage:
+```
+
+```
+
 features:
 
 - simple cli

@@ -18,7 +18,7 @@ import (
 const refresh_rate = time.Second
 
 func main() {
-
+	log.SetOutput(os.Stdout)
 	app := cliapp.Default()
 
 	app.Add("run", "<db_path> starts process", func(db_url string) {
@@ -84,11 +84,16 @@ func populate(filename string) {
 	}
 	defer f.Close()
 
+	var i = 1
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		a := strings.Split(scanner.Text(), " ")
 		wg.Go(func() {
 			log.Print("Populate: ", a[0])
+			if len(a) < 2 {
+				log.Print("Error in line: ", i)
+				return
+			}
 			t, _ := strconv.Atoi(a[1])
 
 			wait_seconds := time.Second * time.Duration(t)
@@ -97,8 +102,10 @@ func populate(filename string) {
 
 			if err != nil {
 				log.Print("Populate_Request: ", err)
+				log.Default().Print()
 			}
 		})
+		i++
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal("Populate_end: ", err)
