@@ -2,6 +2,8 @@ Diffbot, your process to spot changes on pages
 
 written in go by a go newbie :D
 
+example usage video https://www.youtube.com/watch?v=dcHyaGF4meM
+
 usage:
 
 - create populate file (e.g list.txt) with format {link, repeat time in seconds}
@@ -43,7 +45,3 @@ used dependecies:
 - github.com/glebarez/go-sqlite
 - github.com/nuskey8/go-cliapp
 - github.com/pmezard/go-difflib/difflib
-
-```
-
-```
